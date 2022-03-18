@@ -4,21 +4,21 @@ use svg::Document;
 
 const KEY_FILL_COL: &str = "#3f403f";
 const KEY_BORDER_COLOR: &str = "#303030";
-const KEY_BORDER_SIZE: i16 = 6;
-const KEY_DIMENSIONS: i16 = 100;
-const KEY_BORDER_RADIUS: i16 = 20;
+const KEY_BORDER_SIZE: u16 = 6;
+const KEY_DIMENSIONS: u16 = 100;
+const KEY_BORDER_RADIUS: u16 = 20;
 const TEXT_COLOR: &str = "white";
 const TEXT_SIZE: &str = "5em";
 
 struct Key {
     label: String,
-    x: i16,
-    y: i16,
+    x: u16,
+    y: u16,
     mod_label: Option<String>,
 }
 
 impl Key {
-    fn new(x: i16, y: i16, label: String) -> Self {
+    fn new(x: u16, y: u16, label: String) -> Self {
         Key {
             label,
             x,
@@ -52,12 +52,61 @@ impl Key {
     }
 }
 
+fn column_offset(column: u16) -> u16 {
+    match column {
+        0 => KEY_DIMENSIONS,
+        1 => KEY_DIMENSIONS / 3,
+        2 => 0,
+        3 => KEY_DIMENSIONS / 3,
+        4 => KEY_DIMENSIONS / 2,
+        5 => KEY_DIMENSIONS / 2,
+        6 => KEY_DIMENSIONS / 3,
+        7 => 0,
+        8 => KEY_DIMENSIONS / 3,
+        9 => KEY_DIMENSIONS,
+        _ => panic!("{column} Not a column index"),
+    }
+}
+
+fn generic_key_offset(num: u16) -> u16 {
+    num * (KEY_DIMENSIONS + 10) + 20
+}
+
 fn main() {
-    let key = Key::new(20, 20, "A".to_string());
+    let mut keys = Vec::new();
+    for y in 0..3 {
+        for x in 0..10 {
+            let x_offset = if x > 4 { 100 } else { 0 }; // This offset is for the split layout (second half)
+            let y_offset = column_offset(x); // This offset is for the verical staggering of the keys
+            keys.push(Key::new(
+                generic_key_offset(x) + x_offset,
+                generic_key_offset(y) + y_offset,
+                "B".to_string(),
+            ));
+        }
+    }
+    // Thumb keys
+    for x in 3..7 {
+        let x_offset = if x > 4 { 100 } else { 0 }; // This offset is for the split layout (second half)
+        let y_offset = column_offset(x) + 40; // This offset is for the verical staggering of the keys
+        keys.push(Key::new(
+            generic_key_offset(x) + x_offset,
+            generic_key_offset(3) + y_offset,
+            "B".to_string(),
+        ))
+    }
 
-    let group = key.svg();
+    let background = Rectangle::new()
+        .set("fill", "grey")
+        .set("height", 900)
+        .set("width", 1300);
+    let mut document = Document::new()
+        .set("viewBox", (0, 0, 1250, 900))
+        .add(background);
 
-    let document = Document::new().set("viewBox", (0, 0, 200, 200)).add(group);
+    for key in keys {
+        document = document.add(key.svg());
+    }
 
     svg::save("image.svg", &document).unwrap();
 }
