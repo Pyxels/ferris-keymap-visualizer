@@ -1,3 +1,7 @@
+use std::fs;
+
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use svg::node;
 use svg::node::element::{Group, Rectangle, Text};
 use svg::Document;
@@ -68,6 +72,19 @@ fn column_offset(column: u16) -> u16 {
     }
 }
 
+#[allow(dead_code)]
+#[derive(Deserialize)]
+struct Keymap {
+    version: u8,
+    notes: String,
+    documentation: String,
+    keyboard: String,
+    keymap: String,
+    layout: String,
+    layers: Vec<Vec<String>>,
+    author: String,
+}
+
 fn generic_key_offset(num: u16) -> u16 {
     num * (KEY_DIMENSIONS + 10) + 20
 }
@@ -98,15 +115,18 @@ fn main() {
 
     let background = Rectangle::new()
         .set("fill", "grey")
-        .set("height", 900)
-        .set("width", 1300);
+        .set("height", 900u16)
+        .set("width", 1300u16);
     let mut document = Document::new()
-        .set("viewBox", (0, 0, 1250, 900))
+        .set("viewBox", (0u16, 0u16, 1250u16, 900u16))
         .add(background);
 
     for key in keys {
         document = document.add(key.svg());
     }
 
-    svg::save("image.svg", &document).unwrap();
+    // svg::save("image.svg", &document).unwrap();
+    let data = fs::read_to_string("keymap.json").expect("Could not open file!");
+    let v: Keymap = serde_json::from_str(&data).expect("Error while parsing json");
+    println!("{}, {:?}", v.author, v.layers);
 }
