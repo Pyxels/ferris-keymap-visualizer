@@ -11,13 +11,16 @@ const KEY_BORDER_SIZE: u16 = 6;
 const KEY_DIMENSIONS: u16 = 100;
 const KEY_BORDER_RADIUS: u16 = 20;
 const TEXT_COLOR: &str = "white";
-const TEXT_SIZE: &str = "2em";
+const TEXT_SIZE: &str = "3em";
 
 struct Key {
     label: String,
     x: u16,
     y: u16,
     mod_label: Option<String>,
+    text_size: String,
+    text_y_offset: u16,
+    text_x_offset: u16,
 }
 
 impl Key {
@@ -27,10 +30,18 @@ impl Key {
             x,
             y,
             mod_label: None,
+            text_size: TEXT_SIZE.to_string(),
+            text_y_offset: 0,
+            text_x_offset: 0,
         }
     }
     fn add_mod_label(&mut self, label: String) {
         self.mod_label = Some(label);
+    }
+    fn change_text(&mut self, text_size: String, text_y_offset: u16, text_x_offset: u16) {
+        self.text_size = text_size;
+        self.text_x_offset = text_x_offset;
+        self.text_y_offset = text_y_offset;
     }
     fn svg(&self) -> Group {
         let key = Rectangle::new()
@@ -45,10 +56,10 @@ impl Key {
             .set("height", KEY_DIMENSIONS);
 
         let letter = Text::new()
-            .set("x", self.x + KEY_DIMENSIONS / 3)
-            .set("y", self.y + KEY_DIMENSIONS / 2)
+            .set("x", self.x + KEY_DIMENSIONS / 3 + self.text_x_offset)
+            .set("y", self.y + KEY_DIMENSIONS / 2 + self.text_y_offset)
             .set("fill", TEXT_COLOR)
-            .set("font-size", TEXT_SIZE)
+            .set("font-size", self.text_size.clone())
             .add(node::Text::new(&self.label));
 
         Group::new().add(key).add(letter)
@@ -56,7 +67,7 @@ impl Key {
     fn parse_keycode(&mut self, keycode: String) {
         let mut keycode = keycode;
         keycode = keycode.replace(")", "");
-        self.label = keycode.split("_").last().unwrap().to_string();
+        self.label = match_keycode(keycode.split("_").last().unwrap().to_string());
     }
     fn generate_all_keys(placeholder: String) -> Vec<Key> {
         let mut keys = Vec::new();
@@ -83,6 +94,21 @@ impl Key {
         }
         keys
     }
+}
+
+fn match_keycode(code: String) -> String {
+    match code.as_str() {
+        "SPC" => "",
+        "BSPC" => "",
+        "TAB" => "",
+        "LGUI" => "",
+        "HASH" => "# '",
+        "MINS" => "- _",
+        "COMM" => ", ;",
+        "DOT" => ". :",
+        letter => letter,
+    }
+    .to_string()
 }
 
 fn column_offset(column: u16) -> u16 {
