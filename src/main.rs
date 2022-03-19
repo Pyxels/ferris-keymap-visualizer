@@ -1,7 +1,6 @@
 use std::fs;
 
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde::Deserialize;
 use svg::node;
 use svg::node::element::{Group, Rectangle, Text};
 use svg::Document;
@@ -12,7 +11,7 @@ const KEY_BORDER_SIZE: u16 = 6;
 const KEY_DIMENSIONS: u16 = 100;
 const KEY_BORDER_RADIUS: u16 = 20;
 const TEXT_COLOR: &str = "white";
-const TEXT_SIZE: &str = "5em";
+const TEXT_SIZE: &str = "2em";
 
 struct Key {
     label: String,
@@ -54,6 +53,36 @@ impl Key {
 
         Group::new().add(key).add(letter)
     }
+    fn parse_keycode(&mut self, keycode: String) {
+        let mut keycode = keycode;
+        keycode = keycode.replace(")", "");
+        self.label = keycode.split("_").last().unwrap().to_string();
+    }
+    fn generate_all_keys(placeholder: String) -> Vec<Key> {
+        let mut keys = Vec::new();
+        for y in 0..3 {
+            for x in 0..10 {
+                let x_offset = if x > 4 { 100 } else { 0 }; // This offset is for the split layout (second half)
+                let y_offset = column_offset(x); // This offset is for the verical staggering of the keys
+                keys.push(Key::new(
+                    generic_key_offset(x) + x_offset,
+                    generic_key_offset(y) + y_offset,
+                    placeholder.to_string(),
+                ));
+            }
+        }
+        // Thumb keys
+        for x in 3..7 {
+            let x_offset = if x > 4 { 100 } else { 0 }; // This offset is for the split layout (second half)
+            let y_offset = column_offset(x) + 40; // This offset is for the verical staggering of the keys
+            keys.push(Key::new(
+                generic_key_offset(x) + x_offset,
+                generic_key_offset(3) + y_offset,
+                placeholder.to_string(),
+            ))
+        }
+        keys
+    }
 }
 
 fn column_offset(column: u16) -> u16 {
@@ -90,27 +119,12 @@ fn generic_key_offset(num: u16) -> u16 {
 }
 
 fn main() {
-    let mut keys = Vec::new();
-    for y in 0..3 {
-        for x in 0..10 {
-            let x_offset = if x > 4 { 100 } else { 0 }; // This offset is for the split layout (second half)
-            let y_offset = column_offset(x); // This offset is for the verical staggering of the keys
-            keys.push(Key::new(
-                generic_key_offset(x) + x_offset,
-                generic_key_offset(y) + y_offset,
-                "B".to_string(),
-            ));
-        }
-    }
-    // Thumb keys
-    for x in 3..7 {
-        let x_offset = if x > 4 { 100 } else { 0 }; // This offset is for the split layout (second half)
-        let y_offset = column_offset(x) + 40; // This offset is for the verical staggering of the keys
-        keys.push(Key::new(
-            generic_key_offset(x) + x_offset,
-            generic_key_offset(3) + y_offset,
-            "B".to_string(),
-        ))
+    let keymap_raw = fs::read_to_string("keymap.json").expect("Could not open file!");
+    let keymap: Keymap = serde_json::from_str(&keymap_raw).expect("Error while parsing json");
+
+    let mut keys = Key::generate_all_keys("placeholder".to_string());
+    for (idx, el) in keymap.layers[0].iter().enumerate() {
+        keys[idx].parse_keycode(el.clone());
     }
 
     let background = Rectangle::new()
@@ -125,8 +139,5 @@ fn main() {
         document = document.add(key.svg());
     }
 
-    // svg::save("image.svg", &document).unwrap();
-    let data = fs::read_to_string("keymap.json").expect("Could not open file!");
-    let v: Keymap = serde_json::from_str(&data).expect("Error while parsing json");
-    println!("{}, {:?}", v.author, v.layers);
+    svg::save("image.svg", &document).unwrap();
 }
