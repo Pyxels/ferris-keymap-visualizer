@@ -1,6 +1,7 @@
 mod key;
 mod keymap;
 mod svg_mod;
+mod keycode;
 
 use key::Key;
 use keymap::Keymap;
@@ -11,7 +12,7 @@ fn main() {
 
     let mut keys = Key::generate_all_keys("placeholder".to_string());
 
-    keys = Key::add_layer(keymap.get_layer(0), keys);
+    keys = Key::add_layer(keymap.get_layer(1), keys);
 
     let mut svg = Svg::new();
     svg.add_keys(keys);

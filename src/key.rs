@@ -1,6 +1,8 @@
 use svg::node;
 use svg::node::element::{Group, Rectangle, Text};
 
+use crate::keycode::Keycode;
+
 const KEY_FILL_COL: &str = "#3f403f";
 const KEY_BORDER_COLOR: &str = "#303030";
 const KEY_BORDER_SIZE: u16 = 6;
@@ -61,29 +63,13 @@ impl Key {
         Group::new().add(key).add(letter)
     }
     fn add_keycode(&mut self, keycode: String) {
-        let mut keycode = keycode;
-        keycode = keycode.replace(")", "");
-        keycode = keycode.split("_").last().unwrap().to_string();
 
-        keycode = match keycode.as_str() {
-            "SPC" => "",
-            "BSPC" => "",
-            "TAB" => "",
-            "LGUI" => "",
-            "HASH" => "# '",
-            "MINS" => "- _",
-            "COMM" => ", ;",
-            "DOT" => ". :",
-            "TRNS" => "",
-            "NO" => {
-                self.make_layer_key();
-                ""
-            }
-            letter => letter,
+        let mut keycode = Keycode::parse_keycode(&keycode);
+        if keycode.to_string() == "NO" {
+            self.make_layer_key();
+            keycode = Keycode::new("".to_string());
         }
-        .to_string();
-
-        self.label = keycode;
+        self.label = keycode.to_string();
     }
 
     pub fn add_layer(layer_data: &Vec<String>, mut keys: Vec<Self>) -> Vec<Self>{
