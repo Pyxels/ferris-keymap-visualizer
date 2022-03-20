@@ -62,19 +62,18 @@ impl Key {
 
         Group::new().add(key).add(letter)
     }
-    fn add_keycode(&mut self, keycode: String) {
-
-        let mut keycode = Keycode::parse_keycode(&keycode);
-        if keycode.to_string() == "NO" {
+    fn add_keycode(&mut self, keycode: &Keycode) {
+        if keycode.is_layer_toggle() {
             self.make_layer_key();
-            keycode = Keycode::new("".to_string());
+            self.label = "".to_string();
+            return
         }
         self.label = keycode.to_string();
     }
 
-    pub fn add_layer(layer_data: &Vec<String>, mut keys: Vec<Self>) -> Vec<Self>{
-        for (idx, el) in layer_data.iter().enumerate() {
-            keys[idx].add_keycode(el.clone());
+    pub fn add_layer(keycodes: &Vec<Keycode>, mut keys: Vec<Self>) -> Vec<Self>{
+        for (idx, el) in keycodes.iter().enumerate() {
+            keys[idx].add_keycode(el);
         }
         keys
     }

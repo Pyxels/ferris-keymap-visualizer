@@ -10,12 +10,12 @@ use svg_mod::Svg;
 fn main() {
     let keymap = Keymap::new("keymap.json".to_string());
 
-    let mut keys = Key::generate_all_keys("placeholder".to_string());
+    let mut keyboard = Key::generate_all_keys("placeholder".to_string());
 
-    keys = Key::add_layer(keymap.get_layer(1), keys);
+    keyboard = Key::add_layer(keymap.get_layer(2), keyboard);
 
     let mut svg = Svg::new();
-    svg.add_keys(keys);
+    svg.add_keyboard(keyboard);
 
     svg.save("image.svg").expect("Error while saving svg.");
 }

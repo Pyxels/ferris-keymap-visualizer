@@ -20,7 +20,7 @@ impl Svg {
             .add(background);
         Svg { document }
     }
-    pub fn add_keys(&mut self, keys: Vec<Key>) {
+    pub fn add_keyboard(&mut self, keys: Vec<Key>) {
         let mut document = self.document.clone();
         for key in keys {
             document = document.add(key.svg());
