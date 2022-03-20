@@ -21,6 +21,8 @@ struct Key {
     text_size: String,
     text_y_offset: u16,
     text_x_offset: u16,
+    background_color: String,
+    border_color: String,
 }
 
 impl Key {
@@ -33,20 +35,18 @@ impl Key {
             text_size: TEXT_SIZE.to_string(),
             text_y_offset: 0,
             text_x_offset: 0,
+            background_color: KEY_FILL_COL.to_string(),
+            border_color: KEY_BORDER_COLOR.to_string(),
         }
     }
-    fn add_mod_label(&mut self, label: String) {
-        self.mod_label = Some(label);
-    }
-    fn change_text(&mut self, text_size: String, text_y_offset: u16, text_x_offset: u16) {
-        self.text_size = text_size;
-        self.text_x_offset = text_x_offset;
-        self.text_y_offset = text_y_offset;
+    fn make_layer_key(&mut self) {
+        self.background_color = "#ae1e1f".to_string();
+        self.border_color = "#7a1919".to_string();
     }
     fn svg(&self) -> Group {
         let key = Rectangle::new()
-            .set("fill", KEY_FILL_COL)
-            .set("stroke", KEY_BORDER_COLOR)
+            .set("fill", self.background_color.clone())
+            .set("stroke", self.border_color.clone())
             .set("stroke-width", KEY_BORDER_SIZE)
             .set("x", self.x)
             .set("y", self.y)
@@ -67,7 +67,27 @@ impl Key {
     fn parse_keycode(&mut self, keycode: String) {
         let mut keycode = keycode;
         keycode = keycode.replace(")", "");
-        self.label = match_keycode(keycode.split("_").last().unwrap().to_string());
+        keycode = keycode.split("_").last().unwrap().to_string();
+
+        keycode = match keycode.as_str() {
+            "SPC" => "",
+            "BSPC" => "",
+            "TAB" => "",
+            "LGUI" => "",
+            "HASH" => "# '",
+            "MINS" => "- _",
+            "COMM" => ", ;",
+            "DOT" => ". :",
+            "TRNS" => "",
+            "NO" => {
+                self.make_layer_key();
+                ""
+            }
+            letter => letter,
+        }
+        .to_string();
+
+        self.label = keycode;
     }
     fn generate_all_keys(placeholder: String) -> Vec<Key> {
         let mut keys = Vec::new();
@@ -94,21 +114,6 @@ impl Key {
         }
         keys
     }
-}
-
-fn match_keycode(code: String) -> String {
-    match code.as_str() {
-        "SPC" => "",
-        "BSPC" => "",
-        "TAB" => "",
-        "LGUI" => "",
-        "HASH" => "# '",
-        "MINS" => "- _",
-        "COMM" => ", ;",
-        "DOT" => ". :",
-        letter => letter,
-    }
-    .to_string()
 }
 
 fn column_offset(column: u16) -> u16 {
@@ -149,7 +154,7 @@ fn main() {
     let keymap: Keymap = serde_json::from_str(&keymap_raw).expect("Error while parsing json");
 
     let mut keys = Key::generate_all_keys("placeholder".to_string());
-    for (idx, el) in keymap.layers[0].iter().enumerate() {
+    for (idx, el) in keymap.layers[1].iter().enumerate() {
         keys[idx].parse_keycode(el.clone());
     }
 
