@@ -60,7 +60,7 @@ impl Key {
 
         Group::new().add(key).add(letter)
     }
-    pub fn add_keycode(&mut self, keycode: String) {
+    fn add_keycode(&mut self, keycode: String) {
         let mut keycode = keycode;
         keycode = keycode.replace(")", "");
         keycode = keycode.split("_").last().unwrap().to_string();
@@ -86,6 +86,12 @@ impl Key {
         self.label = keycode;
     }
 
+    pub fn add_layer(layer_data: &Vec<String>, mut keys: Vec<Self>) -> Vec<Self>{
+        for (idx, el) in layer_data.iter().enumerate() {
+            keys[idx].add_keycode(el.clone());
+        }
+        keys
+    }
     pub fn generate_all_keys(placeholder: String) -> Vec<Key> {
         let mut keys = Vec::new();
         for y in 0..3 {
