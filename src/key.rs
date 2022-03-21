@@ -58,7 +58,7 @@ impl Key {
             )
             .set(
                 "y",
-                self.y + KEY_DIMENSIONS / 2 + self.text_y_offset + y_offset,
+                self.y + KEY_DIMENSIONS / 2 + 10 + self.text_y_offset + y_offset,
             )
             .set("fill", TEXT_COLOR)
             .set("font-size", self.text_size.clone())

@@ -1,7 +1,8 @@
 use std::io;
 use std::path::Path;
 
-use svg::{node::element::Rectangle, Document};
+use svg::node::element::{Rectangle, Text};
+use svg::{node, Document};
 
 use crate::key::Key;
 
@@ -22,10 +23,27 @@ impl Svg {
             .add(background);
         Svg { document }
     }
-    pub fn add_keyboard(&mut self, keys: Vec<Key>, layer_index: usize) {
+    pub fn add_keyboard(&mut self, keys: Vec<Key>, layer_index: usize, layer_label: usize) {
         let x_offset = (layer_index % 2) as u16 * 1250;
         let y_offset = layer_index as u16 / 2 * 600;
         let mut document = self.document.clone();
+        let border = Rectangle::new()
+            .set("fill-opacity", 0.0_f32)
+            .set("x", x_offset)
+            .set("y", y_offset)
+            .set("height", 600 as u16)
+            .set("width", 1250 as u16)
+            .set("stroke", "black")
+            .set("stroke-width", 4 as u16);
+        let letter = Text::new()
+            .set("x", x_offset + 170)
+            .set("y", y_offset + 500)
+            .set("fill", "white")
+            .set("font-size", "6em")
+            .add(node::Text::new(format!(" {layer_label}")));
+
+        document = document.add(border);
+        document = document.add(letter);
         for key in keys {
             document = document.add(key.svg(x_offset, y_offset));
         }

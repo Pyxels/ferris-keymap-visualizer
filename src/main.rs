@@ -24,7 +24,7 @@ fn main() {
         keyboard = Key::add_layer(keymap.get_layer(layer), keyboard);
 
         svg = Svg::new(1);
-        svg.add_keyboard(keyboard, 0);
+        svg.add_keyboard(keyboard, 0, layer);
 
         image_path = args
             .image
@@ -37,7 +37,7 @@ fn main() {
         for layer in 0..layer_count {
             let mut keyboard = Key::generate_all_keys();
             keyboard = Key::add_layer(keymap.get_layer(layer), keyboard);
-            svg.add_keyboard(keyboard, layer);
+            svg.add_keyboard(keyboard, layer, layer);
         }
 
         image_path = args
