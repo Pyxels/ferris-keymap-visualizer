@@ -13,10 +13,10 @@ impl Svg {
     pub fn new() -> Self {
         let background = Rectangle::new()
             .set("fill", "grey")
-            .set("height", 900u16)
-            .set("width", 1300u16);
+            .set("height", 600u16)
+            .set("width", 1250u16);
         let document = Document::new()
-            .set("viewBox", (0u16, 0u16, 1250u16, 900u16))
+            .set("viewBox", (0u16, 0u16, 1250u16, 600u16))
             .add(background);
         Svg { document }
     }
