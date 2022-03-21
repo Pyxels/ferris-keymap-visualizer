@@ -12,7 +12,7 @@ fn main() {
 
     let mut keyboard = Key::generate_all_keys("placeholder".to_string());
 
-    keyboard = Key::add_layer(keymap.get_layer(2), keyboard);
+    keyboard = Key::add_layer(keymap.get_layer(1), keyboard);
 
     let mut svg = Svg::new();
     svg.add_keyboard(keyboard);
