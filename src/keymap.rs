@@ -35,12 +35,15 @@ impl Keymap {
     pub fn get_layer(&self, idx: usize) -> &Vec<Keycode> {
         if idx >= self.keycodes.len() {
             eprintln!(
-                "Index {idx} is out of bounds. There are only {} layers. Exiting...",
-                self.keycodes.len()
+                "Index {idx} is out of bounds (starts with 0). There are only {} layers. Exiting...",
+                self.keycodes.len() 
             );
             std::process::exit(1);
         }
         &self.keycodes[idx]
+    }
+    pub fn layer_count(&self) -> usize {
+        self.keycodes.len()
     }
     fn parse_keys(&mut self) {
         // TODO: Result and custom error
