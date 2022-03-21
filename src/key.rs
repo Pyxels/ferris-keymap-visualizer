@@ -12,10 +12,9 @@ const TEXT_COLOR: &str = "white";
 const TEXT_SIZE: &str = "3em";
 
 pub struct Key {
-    label: String,
+    keycode: Keycode,
     x: u16,
     y: u16,
-    mod_label: Option<String>,
     text_size: String,
     text_y_offset: u16,
     text_x_offset: u16,
@@ -24,12 +23,11 @@ pub struct Key {
 }
 
 impl Key {
-    fn new(x: u16, y: u16, label: String) -> Self {
+    fn new(x: u16, y: u16, keycode: Keycode) -> Self {
         Key {
-            label,
+            keycode,
             x,
             y,
-            mod_label: None,
             text_size: TEXT_SIZE.to_string(),
             text_y_offset: 0,
             text_x_offset: 0,
@@ -58,26 +56,24 @@ impl Key {
             .set("y", self.y + KEY_DIMENSIONS / 2 + self.text_y_offset)
             .set("fill", TEXT_COLOR)
             .set("font-size", self.text_size.clone())
-            .add(node::Text::new(&self.label));
+            .add(node::Text::new(&self.keycode.to_string()));
 
         Group::new().add(key).add(letter)
     }
     fn add_keycode(&mut self, keycode: &Keycode) {
         if keycode.is_layer_toggle() {
             self.make_layer_key();
-            self.label = "".to_string();
-            return
         }
-        self.label = keycode.to_string();
+        self.keycode = keycode.clone();
     }
 
-    pub fn add_layer(keycodes: &Vec<Keycode>, mut keys: Vec<Self>) -> Vec<Self>{
+    pub fn add_layer(keycodes: &Vec<Keycode>, mut keys: Vec<Self>) -> Vec<Self> {
         for (idx, el) in keycodes.iter().enumerate() {
             keys[idx].add_keycode(el);
         }
         keys
     }
-    pub fn generate_all_keys(placeholder: String) -> Vec<Key> {
+    pub fn generate_all_keys() -> Vec<Key> {
         let mut keys = Vec::new();
         for y in 0..3 {
             for x in 0..10 {
@@ -86,7 +82,7 @@ impl Key {
                 keys.push(Key::new(
                     Key::generic_key_offset(x) + x_offset,
                     Key::generic_key_offset(y) + y_offset,
-                    placeholder.to_string(),
+                    Keycode::new("".to_string()),
                 ));
             }
         }
@@ -97,7 +93,7 @@ impl Key {
             keys.push(Key::new(
                 Key::generic_key_offset(x) + x_offset,
                 Key::generic_key_offset(3) + y_offset,
-                placeholder.to_string(),
+                Keycode::new("".to_string()),
             ))
         }
         keys

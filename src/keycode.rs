@@ -1,11 +1,13 @@
 use std::fmt;
 
+#[derive(Clone)]
 pub struct Keycode {
     keystring: String,
     modifier: Option<Modifier>,
     current_layer_toggle: bool,
 }
 
+#[derive(Clone)]
 enum Modifier {
     Shift,
     Alt,
@@ -22,6 +24,7 @@ impl Keycode {
         // TODO Result
         let mut keystring;
         let mut modifier = None;
+        let mut current_layer_toggle = false;
 
         if keycode.contains("(") {
             let mut split = keycode.split("(");
@@ -61,7 +64,10 @@ impl Keycode {
             keystring = Self::match_keystring(keystring);
         }
 
-        let current_layer_toggle = if keystring == "NO" { true } else { false };
+        if keystring == "NO" {
+            current_layer_toggle = true;
+            keystring = "".to_string();
+        }
         Keycode {
             keystring,
             modifier,
