@@ -39,7 +39,7 @@ impl Keycode {
                     "LCTL" => "⌃",
                     "LCA" => "⌃⌥",
                     "DF" => "",
-                    x => panic!("Unknown modifier {x}"),
+                    _ => panic!("How did you even get here?"),
                 }
                 .to_string();
                 keystring.push_str(&Self::match_keystring(inside_key.to_string()));
@@ -81,6 +81,16 @@ impl Keycode {
             "MINS" => "- _",
             "COMM" => ", ;",
             "DOT" => ". :",
+            "BTN1" => " 1",
+            "BTN2" => " 2",
+            "WH_U" => "",
+            "WH_D" => "",
+            "WH_L" => "",
+            "WH_R" => "",
+            "MS_L" => "",
+            "MS_D" => "",
+            "MS_U" => "",
+            "MS_R" => "",
             "TRNS" => "",
             letter => letter,
         }
