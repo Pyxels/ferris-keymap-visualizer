@@ -146,6 +146,7 @@ impl Keycode {
             "SS" => "ß",
             "UDIA" => "Ü",
             "ODIA" => "Ö",
+            "EURO" => "€",
             "TRNS" => "",
             letter => letter,
         }
